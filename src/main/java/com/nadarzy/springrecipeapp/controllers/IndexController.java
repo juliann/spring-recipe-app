@@ -8,6 +8,10 @@ public class IndexController {
 
     @RequestMapping({"/", "", "/index.html", "index"})
     public String getIndexPage(){
+        System.out.println("im here");
+        System.out.println("hello");
+        System.out.println("hello");
+        System.out.println("hello");
         return "index";
     }
 }
