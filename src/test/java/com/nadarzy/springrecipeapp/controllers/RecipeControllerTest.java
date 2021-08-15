@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -41,6 +42,7 @@ public class RecipeControllerTest {
     mockMvc
         .perform(get("/recipe/show/1"))
         .andExpect(status().isOk())
-        .andExpect(view().name("recipe/show"));
+        .andExpect(view().name("recipe/show"))
+        .andExpect(MockMvcResultMatchers.model().attributeExists("recipe"));
   }
 }
