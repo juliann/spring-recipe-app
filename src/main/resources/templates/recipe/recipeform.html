@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <title>Update Recipe</title>
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"
-          integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous"
-          th:href="@{/webjars/bootstrap/5.1.0/css/bootstrap.min.css}">
+    <link th:href="@{webjars/bootstrap/5.1.0/css/bootstrap.min.css}" th:rel="stylesheet" }/>
+    <!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"-->
+    <!--          integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous"-->
+    <!--          th:href="@{/webjars/bootstrap/5.1.0/css/bootstrap.min.css}">-->
     <script src="webjars/jquery/3.6.0/jquery.min.js"></script>
     <!--    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js"-->
     <script src="/webjars/bootstrap/5.1.0/css/bootstrap.min.css"
@@ -60,11 +61,18 @@
                                 </div>
                                 <div class="col-md-3 form-group">
                                     <label>Difficulty:</label>
-                                    <select class="form-control">
-                                        <option>Easy</option>
-                                        <option>Medium</option>
-                                        <option>Hard</option>
+                                    <select class="form-control" th:field="*{difficulty}">
+                                        <option th:each="difficultyValue : ${T(com.nadarzy.springrecipeapp.model.Difficulty).values()}"
+                                                th:value="${difficultyValue.name()}"
+                                                th:text="${difficultyValue.name()}"
+                                        >val
+                                        </option>
                                     </select>
+                                    <!--                                    <select class="form-control">-->
+                                    <!--                                        <option>Easy</option>-->
+                                    <!--                                        <option>Medium</option>-->
+                                    <!--                                        <option>Hard</option>-->
+                                    <!--                                    </select>-->
                                 </div>
                             </div>
                             <div class="row">
@@ -140,5 +148,8 @@
         </div>
     </div>
 </div>
+<!--<script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>-->
+<!--<script th:src="@{/webjars/popper.js/2.9.3/umd/popper-base.min.js}"></script>-->
+<!--<script th:src="@{/webjars/bootstrap/5.1.0/js/bootstrap.min.js}"></script>-->
 </body>
 </html>
