@@ -1,11 +1,15 @@
 package com.nadarzy.springrecipeapp.services;
 
 import com.nadarzy.springrecipeapp.commands.IngredientCommand;
+import com.nadarzy.springrecipeapp.converters.IngredientCommandToIngredient;
 import com.nadarzy.springrecipeapp.converters.IngredientToIngredientCommand;
+import com.nadarzy.springrecipeapp.model.Ingredient;
 import com.nadarzy.springrecipeapp.model.Recipe;
 import com.nadarzy.springrecipeapp.repositories.RecipeRepository;
+import com.nadarzy.springrecipeapp.repositories.UnitOfMeasureRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -13,13 +17,20 @@ import java.util.Optional;
 @Service
 public class IngredientServiceImpl implements IngredientService {
 
-  private final IngredientToIngredientCommand ingredient;
+  private final IngredientToIngredientCommand ingredientToIngredientCommand;
+  private final IngredientCommandToIngredient ingredientCommandToIngredient;
   private final RecipeRepository recipeRepository;
+  private final UnitOfMeasureRepository unitOfMeasureRepository;
 
   public IngredientServiceImpl(
-      IngredientToIngredientCommand ingredient, RecipeRepository recipeRepository) {
-    this.ingredient = ingredient;
+      IngredientToIngredientCommand ingredientToIngredientCommand,
+      IngredientCommandToIngredient ingredientCommandToIngredient,
+      RecipeRepository recipeRepository,
+      UnitOfMeasureRepository unitOfMeasureRepository) {
+    this.ingredientToIngredientCommand = ingredientToIngredientCommand;
+    this.ingredientCommandToIngredient = ingredientCommandToIngredient;
     this.recipeRepository = recipeRepository;
+    this.unitOfMeasureRepository = unitOfMeasureRepository;
   }
 
   @Override
@@ -33,11 +44,53 @@ public class IngredientServiceImpl implements IngredientService {
     Optional<IngredientCommand> optionalIngredientCommand =
         recipe.getIngredients().stream()
             .filter(ingredient1 -> ingredient1.getId().equals(ingredientId))
-            .map(ingredient1 -> ingredient.convert(ingredient1))
+            .map(ingredient1 -> ingredientToIngredientCommand.convert(ingredient1))
             .findFirst();
     if (!optionalIngredientCommand.isPresent()) {
       log.error("ingr id not found" + ingredientId);
     }
     return optionalIngredientCommand.get();
+  }
+
+  @Override
+  @Transactional
+  public IngredientCommand saveIngredientCommand(IngredientCommand command) {
+    Optional<Recipe> recipeOptional = recipeRepository.findById(command.getRecipeId());
+
+    if (!recipeOptional.isPresent()) {
+
+      // todo toss error if not found!
+      log.error("Recipe not found for id: " + command.getRecipeId());
+      return new IngredientCommand();
+    } else {
+      Recipe recipe = recipeOptional.get();
+
+      Optional<Ingredient> ingredientOptional =
+          recipe.getIngredients().stream()
+              .filter(ingredient -> ingredient.getId().equals(command.getId()))
+              .findFirst();
+
+      if (ingredientOptional.isPresent()) {
+        Ingredient ingredientFound = ingredientOptional.get();
+        ingredientFound.setDescription(command.getDescription());
+        ingredientFound.setAmount(command.getAmount());
+        ingredientFound.setUom(
+            unitOfMeasureRepository
+                .findById(command.getUom().getId())
+                .orElseThrow(() -> new RuntimeException("UOM NOT FOUND"))); // todo address this
+      } else {
+        // add new Ingredient
+        recipe.addIngredient(ingredientCommandToIngredient.convert(command));
+      }
+
+      Recipe savedRecipe = recipeRepository.save(recipe);
+
+      // to do check for fail
+      return ingredientToIngredientCommand.convert(
+          savedRecipe.getIngredients().stream()
+              .filter(recipeIngredients -> recipeIngredients.getId().equals(command.getId()))
+              .findFirst()
+              .get());
+    }
   }
 }
