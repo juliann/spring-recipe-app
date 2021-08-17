@@ -36,7 +36,7 @@ public class IngredientServiceImpl implements IngredientService {
   @Override
   public IngredientCommand findByRecipeIdAndIngredientId(Long recipeId, Long ingredientId) {
     Optional<Recipe> recipeOptional = recipeRepository.findById(recipeId);
-    if (!recipeOptional.isPresent()) {
+    if (recipeOptional.isEmpty()) {
       log.error("recipe id not found " + recipeId);
     }
     Recipe recipe = recipeOptional.get();
@@ -44,7 +44,7 @@ public class IngredientServiceImpl implements IngredientService {
     Optional<IngredientCommand> optionalIngredientCommand =
         recipe.getIngredients().stream()
             .filter(ingredient1 -> ingredient1.getId().equals(ingredientId))
-            .map(ingredient1 -> ingredientToIngredientCommand.convert(ingredient1))
+            .map(ingredientToIngredientCommand::convert)
             .findFirst();
     if (!optionalIngredientCommand.isPresent()) {
       log.error("ingr id not found" + ingredientId);
@@ -80,17 +80,36 @@ public class IngredientServiceImpl implements IngredientService {
                 .orElseThrow(() -> new RuntimeException("UOM NOT FOUND"))); // todo address this
       } else {
         // add new Ingredient
-        recipe.addIngredient(ingredientCommandToIngredient.convert(command));
+        Ingredient ingredient = ingredientCommandToIngredient.convert(command);
+        ingredient.setRecipe(recipe);
+        recipe.addIngredient(ingredient);
       }
 
       Recipe savedRecipe = recipeRepository.save(recipe);
 
-      // to do check for fail
-      return ingredientToIngredientCommand.convert(
+      Optional<Ingredient> savedIngredientOptional =
           savedRecipe.getIngredients().stream()
               .filter(recipeIngredients -> recipeIngredients.getId().equals(command.getId()))
-              .findFirst()
-              .get());
+              .findFirst();
+
+      // check by description
+      if (!savedIngredientOptional.isPresent()) {
+        // not totally safe... But best guess
+        savedIngredientOptional =
+            savedRecipe.getIngredients().stream()
+                .filter(
+                    recipeIngredients ->
+                        recipeIngredients.getDescription().equals(command.getDescription()))
+                .filter(
+                    recipeIngredients -> recipeIngredients.getAmount().equals(command.getAmount()))
+                .filter(
+                    recipeIngredients ->
+                        recipeIngredients.getUom().getId().equals(command.getUom().getId()))
+                .findFirst();
+      }
+
+      // to do check for fail
+      return ingredientToIngredientCommand.convert(savedIngredientOptional.get());
     }
   }
 }

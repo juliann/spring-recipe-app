@@ -1,6 +1,8 @@
 package com.nadarzy.springrecipeapp.controllers;
 
 import com.nadarzy.springrecipeapp.commands.IngredientCommand;
+import com.nadarzy.springrecipeapp.commands.RecipeCommand;
+import com.nadarzy.springrecipeapp.commands.UnitOfMeasureCommand;
 import com.nadarzy.springrecipeapp.services.IngredientService;
 import com.nadarzy.springrecipeapp.services.RecipeService;
 import com.nadarzy.springrecipeapp.services.UnitOfMeasureService;
@@ -69,5 +71,18 @@ public class IngredientController {
         + "/ingredient/"
         + savedCommand.getId()
         + "/show";
+  }
+
+  @GetMapping
+  @RequestMapping("recipe/{recipeId}/ingredient/new")
+  public String newRecipe(@PathVariable String recipeId, Model model) {
+    RecipeCommand recipeCommand = recipeService.findCommandById(Long.valueOf(recipeId));
+    // todo: exception if null
+    IngredientCommand ingredientCommand = new IngredientCommand();
+    ingredientCommand.setRecipeId(Long.valueOf(recipeId));
+    model.addAttribute("ingredient", ingredientCommand);
+    ingredientCommand.setUom(new UnitOfMeasureCommand());
+    model.addAttribute("uomList", unitOfMeasureService.listAllUoms());
+    return "recipe/ingredient/ingredientform";
   }
 }
