@@ -40,7 +40,7 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
   }
 
   private List<Recipe> getRecipes() {
-
+    System.out.println("hello world");
     List<Recipe> recipes = new ArrayList<>(2);
 
     // get UOMs
