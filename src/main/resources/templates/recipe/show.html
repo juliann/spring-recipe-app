@@ -24,6 +24,10 @@
                         <!--/*@thymesVar id="recipe" type="com.nadarzy.springrecipeapp.model.Recipe"*/-->
                         <h1 class="panel-title" th:text="${recipe.description}">Recipe Description Here!</h1>
                     </div>
+                    <div class="col-md-1">
+                        <a class="btn btn-default" href="#"
+                           th:href="@{'/recipe/' + ${recipe.id} + '/image'}" role="button">Change Image</a>
+                    </div>
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-3">
@@ -37,6 +41,11 @@
                                         th:text="${category.getDescription()}"></li>
                                 </ul>
                             </div>
+                        </div>
+                        <div class="col-md-6">
+                            <img src="../../static/images/guacamole400x400.jpg"
+                                 th:src="@{/images/guacamole400x400.jpg}"
+                                 width="200" height="200">
                         </div>
                         <div class="row">
                             <div class="col-md-3">
