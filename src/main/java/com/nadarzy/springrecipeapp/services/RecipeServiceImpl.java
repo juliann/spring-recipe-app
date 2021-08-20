@@ -3,6 +3,7 @@ package com.nadarzy.springrecipeapp.services;
 import com.nadarzy.springrecipeapp.commands.RecipeCommand;
 import com.nadarzy.springrecipeapp.converters.RecipeCommandToRecipe;
 import com.nadarzy.springrecipeapp.converters.RecipeToRecipeCommand;
+import com.nadarzy.springrecipeapp.exceptions.NotFoundException;
 import com.nadarzy.springrecipeapp.model.Recipe;
 import com.nadarzy.springrecipeapp.repositories.RecipeRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,7 @@ public class RecipeServiceImpl implements RecipeService {
   @Override
   public Recipe findById(long id) {
     Optional<Recipe> recipe = recipeRepository.findById(id);
-    if (!recipe.isPresent()) throw new RuntimeException("Recipe not found!");
+    if (!recipe.isPresent()) throw new NotFoundException("Recipe not found!");
 
     return recipe.get();
   }

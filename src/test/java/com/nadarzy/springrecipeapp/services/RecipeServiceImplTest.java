@@ -2,6 +2,7 @@ package com.nadarzy.springrecipeapp.services;
 
 import com.nadarzy.springrecipeapp.converters.RecipeCommandToRecipe;
 import com.nadarzy.springrecipeapp.converters.RecipeToRecipeCommand;
+import com.nadarzy.springrecipeapp.exceptions.NotFoundException;
 import com.nadarzy.springrecipeapp.model.Recipe;
 import com.nadarzy.springrecipeapp.repositories.RecipeRepository;
 import org.junit.Before;
@@ -31,6 +32,13 @@ public class RecipeServiceImplTest {
     MockitoAnnotations.openMocks(this);
     recipeService =
         new RecipeServiceImpl(recipeRepository, recipeCommandToRecipe, recipeToRecipeCommand);
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void getRecipeByIdTestNotFound() {
+    Optional<Recipe> recipeOptional = Optional.empty();
+    when(recipeRepository.findById(anyLong())).thenReturn(recipeOptional);
+    Recipe recipe = recipeService.findById(1L);
   }
 
   @Test
@@ -68,7 +76,7 @@ public class RecipeServiceImplTest {
     // when
     recipeService.deleteById(idToDelete);
 
-    //then
+    // then
     verify(recipeRepository, times(1)).deleteById(anyLong());
   }
 }
