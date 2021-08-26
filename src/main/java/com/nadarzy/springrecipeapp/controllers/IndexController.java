@@ -1,10 +1,13 @@
 package com.nadarzy.springrecipeapp.controllers;
 
+import com.nadarzy.springrecipeapp.model.Recipe;
 import com.nadarzy.springrecipeapp.services.RecipeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.Set;
 
 @Slf4j
 @Controller
@@ -19,7 +22,8 @@ public class IndexController {
   @RequestMapping({"/", "", "/index.html", "index"})
   public String getIndexPage(Model model) {
     log.debug("gettimg index page");
-    model.addAttribute("recipes", recipeService.getRecipes());
+    Set<Recipe> recipes = recipeService.getRecipes();
+    model.addAttribute("recipes", recipes);
 
     return "index";
   }
